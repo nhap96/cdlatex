@@ -1214,6 +1214,8 @@ constant `cdlatex-math-modify-alist'."
       (setq acc    (nth 2 ass))
       (setq rmdot  (nth 3 ass))
       (setq it     (nth 4 ass))
+      (setq open   (or (nth 5 ass) "{"))
+      (setq close  (or (nth 6 ass) "}"))
       (if (not cmd) (error "No such modifier `%c' %s math mode." char
 			   (if inside-math "inside" "outside")))
       (cond
@@ -1223,30 +1225,30 @@ constant `cdlatex-math-modify-alist'."
 	  (goto-char end)
 	  (point-to-register ?x)
 	  (goto-char beg)
-	  (insert "{")
+	  (insert open)
 	  (if acc (forward-char -1))
 	  (insert cmd)
 	  (if (not acc) (insert " "))
 	  (register-to-point ?x)
-	  (insert "}")))
+	  (insert close)))
        (arg
 	(point-to-register ?x)
 	(backward-word arg)
-	(insert "{")
+	(insert open)
 	(if acc (forward-char -1))
 	(insert cmd)
 	(if (not acc) (insert " "))
 	(register-to-point ?x)
-	(insert "}"))	
+	(insert close))
        ((or (bolp)
 	    (not cdlatex-modify-backwards)
 	    (memq (preceding-char) '(?\  ?$ ?- ?{ ?\( )))
 	;; Just insert empty form and position cursor
 	(if acc
-	    (insert cmd "{?")
-	  (insert "{" cmd " ?"))
+	    (insert cmd open "?")
+	  (insert open cmd " ?"))
 	(if it (insert "\\/"))
-	(insert "}")
+	(insert close)
 	(search-backward "?")
 	(delete-char 1))
        (t
@@ -1276,12 +1278,12 @@ constant `cdlatex-math-modify-alist'."
 			       (point-to-register ?x)
 			       (forward-char -6))))))
             (setq extrabrac t)))
-        (if extrabrac (progn (insert "{")
+        (if extrabrac (progn (insert open)
                              (if acc (forward-char -1))))
         (insert cmd)
         (if (not acc) (insert " "))
         (register-to-point ?x)
-        (if extrabrac (insert "}")))))))
+        (if extrabrac (insert close)))))))
 
 ;;; And here is the help function for the symbol insertions stuff
 
